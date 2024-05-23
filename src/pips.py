@@ -54,6 +54,13 @@ class PipArray:
                 pip.school = school
                 return
             
+    def convertWhiteToPower(self):
+        for pip in self.pips:
+            if not pip.isPower:
+                pip.isPower = True
+                self.orderPips()
+                return
+            
     def destroyPips(self, num: int):
         while num > 1 and len(self.pips) > 0:
             destroyedPip = self.pips.pop()
@@ -80,11 +87,28 @@ class PipArray:
             if len(self.pips) < 7:
                 if num > 1:
                     self.pips.append(Pip(isPower=True, school=School.Universal))
+                    num -= 2
                 if num == 1:
                     self.pips.append(Pip(isPower=False, school=School.Universal))
+                    num -= 1
             else:
-                self.pips
+                self.convertWhiteToPower()
+                num -= 1
 
+    def destroyShadowPips(self, num: int):
+        while num > 0:
+            if len(self.shadow_pips) == 0:
+                return
+            
+            self.shadow_pips.pop()
+            num -= 1
+        
+    def addShadowPips(self, num: int):
+        while num > 0:
+            if len(self.shadow_pips == 2):
+                return
+            
+            self.shadow_pips.append(Pip(isPower=True, school=School.Shadow))
 
     def subtractPips(self, num: int, extraPipReq: List[Pip], cardSchool: School, mastery: School, pserve: int) -> bool:
         if self.sumTotalValue() < num:

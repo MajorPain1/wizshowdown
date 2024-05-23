@@ -1,4 +1,4 @@
-from random import choice, randint
+from random import choice, randint, random
 from typing import Callable, List
 
 from src.player import Player
@@ -7,10 +7,6 @@ from src.enums import SpellEffects, EffectTarget, School, ExecutionOutcomes, Dis
 from src.hangingeffect import Charm, Ward, Overtime, Bubble, Aura
 
 
-hangingEffects = [
-
-]
-
 class GameState:
     def __init__(self, player1: Player, player2: Player):
         self.round = 1
@@ -18,33 +14,146 @@ class GameState:
         self.player2 = player2
         self.player1.opponent = self.player2
         self.player2.opponent = self.player1
-        self.first: Player = choice([player1, player2])
-        self.second: Player = ([player1, player2].remove(self.first))[0]
 
-        self.bubble = []
+        self.bubbleObjectName = None
+        self.bubbleEffects = []
 
-    def calculateCritChance(self, player: Player, critical: int, block: int) -> float: # TODO : these calc functions
-        return
+    def calculateCritChance(self, level: int, critical: int, block: int) -> float: # TODO : these calc functions
+        return min(min(level/185,1) * (12*critical)/(12*critical+block),.95)
 
-    def calculateBlockChance(self, player: Player, critical: int, block: int) -> float:
-        return
+    def calculateBlockChance(self, level: int, critical: int, block: int) -> float:
+        return min(level/185,1) * block/(block + 12*critical)
 
-    def calculateCritMultiplier(self, player: Player, critical: int, block: int) -> float:
-        return
+    def calculateCritMultiplier(self, critical: int, block: int) -> float:
+        return 2 - (5*block)/(critical+5*block)
     
-    def calculateHeal(self, player, param: int) -> int:
-        return
+    def calculateHeal(self, player: Player, param: int, school: School) -> int:
+        total = param * (1 + player.stats.outgoing/100.0)
+        
+        critical = player.stats.critical.dict[school]
+        school = player.school
+
+        # Calculate Auras on Player
+        for aura in player.aura:
+            aura: Aura
+            if aura.school == School.Universal or aura.school == school:
+                match aura.spellEffect:
+                    case SpellEffects.modify_outgoing_heal:
+                        total *= 1 + aura.param/100
+                    case SpellEffects.modify_outgoing_heal_flat:
+                        pierce += aura.param
+                    case SpellEffects.crit_boost:
+                        critical # TODO: Figure out how crit boost works
+                    case _:
+                        continue                 
+        
+        # Calculate Charms on Self
+        charms_to_remove = []
+        already_used_charms = []
+        for charm in player.charms:
+            charm: Charm
+            if charm.objectName in already_used_charms:
+                continue
+
+            if charm.school == School.Universal or charm.school == school:
+                match charm.spellEffect:
+                    case SpellEffects.modify_outgoing_heal:
+                        total *= 1 + bubble.param/100
+                    case SpellEffects.modify_outgoing_heal_flat:
+                        pierce += bubble.param
+                    case SpellEffects.crit_boost:
+                        critical # TODO: Figure out how crit boost works
+                    case _:
+                        continue
+                charms_to_remove.append(charm)
+                already_used_charms.append(charm.objectName)
+
+        player.charms.reverse()
+        for charm in charms_to_remove:
+            player.charms.remove(charm)
+        player.charms.reverse()
+
+        # Calculate Bubble
+        for bubble in self.bubble:
+            bubble: Bubble
+            if bubble.school == School.Universal or bubble.school == school:
+                match bubble.spellEffect:
+                    case SpellEffects.modify_outgoing_heal:
+                        total *= 1 + bubble.param/100
+                    case SpellEffects.modify_outgoing_heal_flat:
+                        pierce += bubble.param
+                    case SpellEffects.crit_boost:
+                        critical # TODO: Figure out how crit boost works
+                    case _:
+                        continue
+
+        # Calculate Wards on Self
+        wards_to_remove = []
+        already_used_wards = []
+        for ward in player.wards:
+            ward: Ward
+            if ward.objectName in already_used_wards:
+                continue
+
+            if ward.school == School.Universal or charm.school == school:
+                match ward.spellEffect:
+                    case SpellEffects.modify_incoming_heal:
+                        pass # TODO: Heal wards
+                    case _:
+                        continue
+                wards_to_remove.append(ward)
+                already_used_wards.append(ward.objectName)
+
+        player.wards.reverse()
+        for ward in wards_to_remove:
+            player.wards.remove(ward)
+        player.wards.reverse()
+
+        crit_chance = self.calculateCritChance(player.level, player.critical, player.block)
+        crit_multiplier = self.calculateCritMultiplier(player.critical, player.block)
+        critroll = random()
+
+        if crit_chance > critroll:
+            total *= crit_multiplier
+
+        return total
     
-    def calculateDOT(self, ot: Overtime) -> int:
+    def calculateDOT(self, player: Player, ot: Overtime) -> int:
         return
 
-    def calculateHOT(self, ot: Overtime) -> int:
+    def calculateHOT(self, player: Player, ot: Overtime) -> int:
         return
 
     def calculateAccuracy(self, player: Player, card: Card) -> int:
-        return
+        baseAccuracyRoll = randint(1,100)
+        playerAccuracy = player.stats.accuracy.dict[player.school]
+        totalMantle = 0
 
-    def calculateDamage(self, player: Player, param: int, school: School, cardSchool: School, no_crit: bool = False) -> int:
+        mantles_to_remove = []
+        already_used_mantles = []
+        for charm in player.charms:
+            charm: Charm
+            if charm.objectName in already_used_mantles:
+                continue
+
+            if charm.school == School.Universal or charm.school == player.school:
+                match charm.spellEffect:
+                    case SpellEffects.modify_accuracy:
+                        totalMantle+=charm.param
+                    case _:
+                        continue
+                mantles_to_remove.append(charm)
+                already_used_mantles.append(charm.objectName)
+
+        player.charms.reverse()
+        for mantle in mantles_to_remove:
+            player.charms.remove(mantle)
+        player.charms.reverse()
+
+        return playerAccuracy + baseAccuracyRoll - totalMantle > (100-card.accuracy)
+    
+
+    def calculateDamage(self, player: Player, param: int, school: School, cardSchool: School, dot: bool = True, no_crit: bool = False) -> int:
         total = param
 
         damage = player.stats.damage.dict[cardSchool]
@@ -87,7 +196,6 @@ class GameState:
                     
         
         # Calculate Charms on Player
-        charms_to_remove = []
         already_used_charms = []
         for charm in player.charms:
             charm: Charm
@@ -104,86 +212,83 @@ class GameState:
                         total += charm.param
                     case SpellEffects.modify_outgoing_damage_type:
                         school = School(charm.param)
+                    case SpellEffects.crit_boost:
+                        critical # TODO: Figure out how crit boost works
                     case _:
                         continue
-                charms_to_remove.append(charm)
+                charm.used = True
                 already_used_charms.append(charm.objectName)
 
-        player.charms.reverse()
-        for charm in charms_to_remove:
-            player.charms.remove(charm)
-        player.charms.reverse()
+        if not dot:
+            # Calculate Aura on Opponent
+            for aura in player.opponent.aura:
+                aura: Aura
+                if aura.school == School.Universal or aura.school == school:
+                    match aura.spellEffect:
+                        case SpellEffects.modify_incoming_damage:
+                            # Handling Pierce
+                            if aura.param < 0:
+                                if aura.param + pierce >= 0:
+                                    aura.param += pierce
+                                    pierce = 0
+                                else:
+                                    pierce += aura.param
+                                    aura.param = 0
+
+                            total *= 1 + aura.param/100
+                        case SpellEffects.crit_block:
+                            block # TODO: Figure out how crit block works
+                        case _:
+                            continue
 
 
-        # Calculate Aura on Opponent
-        for aura in player.opponent.aura:
-            aura: Aura
-            if aura.school == School.Universal or aura.school == school:
-                match aura.spellEffect:
-                    case SpellEffects.modify_incoming_damage:
-                        # Handling Pierce
-                        if aura.param < 0:
-                            if aura.param + pierce >= 0:
-                                aura.param += pierce
-                                pierce = 0
-                            else:
-                                pierce += aura.param
-                                aura.param = 0
+            # Calculate Wards on Opponent
+            wards_to_remove = []
+            already_used_wards = []
+            for ward in player.opponent.wards:
+                ward: Ward
+                if ward.objectName in already_used_wards:
+                    continue
 
-                        total *= 1 + aura.param/100
-                    case SpellEffects.crit_block:
-                        block # TODO: Figure out how crit block works
-                    case _:
-                        continue
+                if ward.school == School.Universal or charm.school == school:
+                    match ward.spellEffect:
+                        case SpellEffects.modify_incoming_damage:
+                            # Handling Pierce
+                            if ward.param < 0:
+                                if ward.param + pierce >= 0:
+                                    ward.param += pierce
+                                    pierce = 0
+                                else:
+                                    pierce += ward.param
+                                    ward.param = 0
 
+                            total *= 1 + ward.param/100
+                        case SpellEffects.modify_incoming_armor_piercing:
+                            pierce += ward.param
+                        case SpellEffects.absorb_damage:
+                            total -= ward.param
+                        case _:
+                            continue
+                    wards_to_remove.append(ward)
+                    already_used_wards.append(ward.objectName)
 
-        # Calculate Wards on Opponent
-        wards_to_remove = []
-        already_used_wards = []
-        for ward in player.opponent.wards:
-            ward: Ward
-            if ward.objectName in already_used_wards:
-                continue
-
-            if ward.school == School.Universal or charm.school == school:
-                match ward.spellEffect:
-                    case SpellEffects.modify_incoming_damage:
-                        # Handling Pierce
-                        if ward.param < 0:
-                            if ward.param + pierce >= 0:
-                                ward.param += pierce
-                                pierce = 0
-                            else:
-                                pierce += ward.param
-                                ward.param = 0
-
-                        total *= 1 + ward.param/100
-                    case SpellEffects.modify_incoming_armor_piercing:
-                        pierce += ward.param
-                    case SpellEffects.absorb_damage:
-                        total -= ward.param
-                    case _:
-                        continue
-                wards_to_remove.append(ward)
-                already_used_wards.append(ward.objectName)
-
-        player.opponent.wards.reverse()
-        for ward in wards_to_remove:
-            player.opponent.wards.remove(ward)
-        player.opponent.wards.reverse()
+            player.opponent.wards.reverse()
+            for ward in wards_to_remove:
+                player.opponent.wards.remove(ward)
+            player.opponent.wards.reverse()
 
 
-        # Handling Pierce
-        if resist > 0:
-            if resist - pierce >= 0:
-                resist -= pierce
-                pierce = 0
-            else:
-                pierce -= resist
-                resist = 0
+            # Handling Pierce
+            if resist > 0:
+                if resist - pierce >= 0:
+                    resist -= pierce
+                    pierce = 0
+                else:
+                    pierce -= resist
+                    resist = 0
 
-        total *= 1 - resist/100
-        
+            total *= 1 - resist/100
+            
         if not no_crit:
             crit_chance = self.calculateCritChance(player, critical, block)
             block_chance = self.calculateBlockChance(player, critical, block)
@@ -420,19 +525,42 @@ class GameState:
                     target.stunned = True
             case SpellEffects.reshuffle:
                 target.deckstate.reshuffle()
-            case SpellEffects.modify_pips | SpellEffects.modify_power_pips:
-                pass # TODO: Look at Mana Burn spell effects and B Storm Owl spell Effects
+            case SpellEffects.modify_pips:
+                if effect.param < 0:
+                    target.pips.destroyPips(-effect.param)
+                elif effect.param > 0:
+                    target.pips.addPips(effect.param)
+            case SpellEffects.modify_power_pips:
+                if effect.param < 0:
+                    target.pips.destroyPips(-effect.param * 2)
+                elif effect.param > 0:
+                    target.pips.addPips(effect.param * 2)
+            case SpellEffects.modify_shadow_pips:
+                if effect.param < 0:
+                    target.pips.destroyShadowPips(-effect.param)
+                elif effect.param > 0:
+                    target.pips.addShadowPips(effect.param)
+            case SpellEffects.damage_over_time:
+                target.overtimes.append(Overtime(player, self.calculateDamage(player, effect.param, effect.school, card.school), effect.school, effect.rounds, effect.spelleffect, effect.disposition))
+            case SpellEffects.heal_over_time:
+                pass
 
 
         match card.cardType:
             case CardType.Ward:
-                effectClass = Ward
+                target.wards.append(hangingEffect)
             case CardType.Charm:
-                effectClass = Charm
+                target.charms.append(hangingEffect)
             case CardType.Aura:
-                effectClass = Aura
+                if card.objectName != target.auraObjectName:
+                    target.auraEffects = []
+                    target.auraObjectName = card.objectName
+                target.auraEffects.append(hangingEffect)
             case CardType.Global:
-                effectClass = Bubble
+                if card.objectName != self.bubbleObjectName:
+                    self.bubbleEffects = []
+                    self.bubbleObjectName = card.objectName
+                self.bubbleEffects.append(hangingEffect)
 
         for subeffect in effect.subeffects:
             if subeffect[0](player, subeffect[1], subeffect[2]):
@@ -444,22 +572,20 @@ class GameState:
         if player.stunned:
             player.stunned = False
             return ExecutionOutcomes.Stunned
-        if self.calculateAccuracy(player, card) > card.accuracy:
+        if self.calculateAccuracy(player, card):
             return ExecutionOutcomes.Fizzle
-        
+
         for effect in card.effects:
             self.recursiveExecuteEffects(player, card, effect)
 
+        for charm in player.charms:
+            charm: Charm
+            if charm.used:
+                player.charms.remove(charm)
+
         return ExecutionOutcomes.Success
 
-    def turn(self, player: Player):
-        if player.current_hp <= 0:
-            if player.opponent.current_hp > 0:   
-                player.opponent.win = True
-            return
-        # Give player actions to discard, draw, and use card
-        used_card: Card = None
-        # Give opponent actions to discard and draw
+    def turn(self, player: Player, used_card: Card):
         # Tick player's OTs
         for ot in reversed(player.overtimes):
             ot: Overtime
@@ -467,7 +593,7 @@ class GameState:
                 case SpellEffects.damage_over_time:
                     player.updateHP(-self.calculateDOT(player, ot))
                 case SpellEffects.heal_over_time:
-                    player.updateHP(self.calculateHeal(player, ot))
+                    player.updateHP(self.calculateHOT(player, ot))
                 case SpellEffects.deferred_damage:
                     if ot.rounds == 1:
                         player.updateHP(-self.calculateDOT(player, ot))
@@ -476,38 +602,26 @@ class GameState:
 
             if ot.rounds == 0:
                 player.overtimes.remove(ot)
+
         # Execute Turn
         outcome = self.executeTurn(player, used_card)
-        match outcome: # Outcome used for UI when made
-            case ExecutionOutcomes.Pass:
+        match outcome:
+            case ExecutionOutcomes.Pass | ExecutionOutcomes.Stunned:
                 pass
             case ExecutionOutcomes.Fizzle:
-                pass
-            case ExecutionOutcomes.Stunned:
-                pass
+                player.deckstate.hand.remove(used_card)
+                player.deckstate.mainDeck.insert(randint(0, len(player.deckstate.mainDeck)-1), used_card)
             case ExecutionOutcomes.Success:
-                pass
-            
+                player.deckstate.hand.remove(used_card)
+                player.deckstate.usedCards.append(used_card)
+        
+        # Evaluate Win
+        if player.opponent.current_hp <= 0:
+            if player.current_hp > 0:   
+                player.win = True
+        elif player.current_hp <= 0:
+            player.opponent.win = True
+
         # Player draws from main
         player.deckstate.drawMain()
         player.addRoundPip()
-
-    def run(self): # Might get rid of this when implementing pygame and multiplayer
-        while self.player1.win == False or self.player1.win == False:
-            # self.first's turn
-            self.turn(self.first)
-
-            # self.second's turn
-            self.turn(self.second)
-            
-            # Increment round
-            self.round += 1
-
-        # Display winner
-        if self.player1.win:
-            print(f"{self.player1.name} wins")
-        elif self.player2.win:
-            print(f"{self.player2.name} wins")
-        else:
-            print("Tie")
-

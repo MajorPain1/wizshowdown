@@ -28,6 +28,7 @@ class Charm(DispositionEffect):
         super().__init__(owner, disposition)
         self.objectName = objectName
         self.spellEffect = spellEffect
+        self.used = False
         self.param = param
         self.school = school
 

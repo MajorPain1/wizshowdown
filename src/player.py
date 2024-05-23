@@ -38,9 +38,12 @@ class Player:
         self.charms = []
         self.wards = []
         self.overtimes = []
-        self.aura = []
+        self.auraObjectName = None
+        self.auraEffects = []
         self.stunned = False
         self.selectedArch: School = selectedArch
+        self.outgoingDamageEffects = (-1.0, -1, -1)
+        self.outgoingHealModifier = -1.0
         self.win = False
         self.opponent: Player = None
 
@@ -79,6 +82,7 @@ class Player:
         if randint(0, 100) < self.stats.powerPipChance:
             if self.pips.archmastery >= 1.0:
                 self.pips.pips.append(Pip(isPower=True, school=self.selectedArch))
+                self.pips.archmastery = 0.0
             else:
                 self.pips.pips.append(Pip(isPower=True, school=School.Universal))
         else:
