@@ -361,9 +361,13 @@ class GameState:
                 effectClass = Aura
             case CardType.Global:
                 effectClass = Bubble
+            case _:
+                pass
 
         # Match EVERY SINGLE SPELL EFFECT
         match effect.spelleffect:
+            case SpellEffects.invalid_spell_effect:
+                pass
             case SpellEffects.damage:
                 target.updateHP(-self.calculateDamage(player, effect.param, effect.school, card.school))
             case SpellEffects.damage_no_crit:
@@ -545,22 +549,22 @@ class GameState:
             case SpellEffects.heal_over_time:
                 pass
 
-
-        match card.cardType:
-            case CardType.Ward:
-                target.wards.append(hangingEffect)
-            case CardType.Charm:
-                target.charms.append(hangingEffect)
-            case CardType.Aura:
-                if card.objectName != target.auraObjectName:
-                    target.auraEffects = []
-                    target.auraObjectName = card.objectName
-                target.auraEffects.append(hangingEffect)
-            case CardType.Global:
-                if card.objectName != self.bubbleObjectName:
-                    self.bubbleEffects = []
-                    self.bubbleObjectName = card.objectName
-                self.bubbleEffects.append(hangingEffect)
+        if hangingEffect != None:
+            match card.cardType:
+                case CardType.Ward:
+                    target.wards.append(hangingEffect)
+                case CardType.Charm:
+                    target.charms.append(hangingEffect)
+                case CardType.Aura:
+                    if card.objectName != target.auraObjectName:
+                        target.auraEffects = []
+                        target.auraObjectName = card.objectName
+                    target.auraEffects.append(hangingEffect)
+                case CardType.Global:
+                    if card.objectName != self.bubbleObjectName:
+                        self.bubbleEffects = []
+                        self.bubbleObjectName = card.objectName
+                    self.bubbleEffects.append(hangingEffect)
 
         for subeffect in effect.subeffects:
             if subeffect[0](player, subeffect[1], subeffect[2]):

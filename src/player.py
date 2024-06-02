@@ -5,10 +5,9 @@ from src.card import Card
 from src.deck_state import DeckState
 from src.gear import Equipment
 from src.enums import School
-from src.stats import StatsObject
+from src.stats import StatsObject, getBaseStats
 from src.hangingeffect import Charm, Ward, Overtime
 from src.pips import Pip, PipArray
-from src.object_data import getBaseStats
 
 class PlayerDeck:
     def __init__(self, mainDeck: List[Card], treasureCards: List[Card]):

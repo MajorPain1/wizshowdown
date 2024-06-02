@@ -3,17 +3,18 @@ from typing import List
 from src.card import Card
 from src.enums import School
 
+
 class SchoolStat:
     def __init__(
             self,
-            fire: int,
-            ice: int,
-            storm: int,
-            myth: int,
-            life: int,
-            death: int,
-            balance: int,
-            shadow: int,
+            fire: int = 0,
+            ice: int = 0,
+            storm: int = 0,
+            myth: int = 0,
+            life: int = 0,
+            death: int = 0,
+            balance: int = 0,
+            shadow: int = 0,
         ):
         self.fire = fire
         self.ice = ice
@@ -48,28 +49,28 @@ class SchoolStat:
         return SchoolStat(fire, ice, storm, myth, life, death, balance, shadow)
 
 class StartingPips:
-    def __init__(self, powerPips: int, whitePips: int):
+    def __init__(self, powerPips: int = 0, whitePips: int = 0):
         self.powerPips = powerPips
         self.whitePips = whitePips
 
 class StatsObject:
     def __init__(
             self,
-            health: int,
-            mana: int,
-            damage: SchoolStat,
-            resist: SchoolStat,
-            accuracy: SchoolStat,
-            critical: SchoolStat,
-            block: SchoolStat,
-            pierce: SchoolStat,
-            outgoing: int,
-            pipConserve: SchoolStat,
-            powerPipChance: int,
-            shadowRating: int,
-            archmastery: int,
-            startingPips: StartingPips,
-            itemcards: List[Card]
+            health: int = 0,
+            mana: int = 0,
+            damage: SchoolStat = SchoolStat(),
+            resist: SchoolStat = SchoolStat(),
+            accuracy: SchoolStat = SchoolStat(),
+            critical: SchoolStat = SchoolStat(),
+            block: SchoolStat = SchoolStat(),
+            pierce: SchoolStat = SchoolStat(),
+            outgoing: int = 0,
+            pipConserve: SchoolStat = SchoolStat(),
+            powerPipChance: int = 0,
+            shadowRating: int = 0,
+            archmastery: int = 0,
+            startingPips: StartingPips = StartingPips(),
+            itemcards: List[Card] = []
         ):
         self.health = health
         self.mana = mana
@@ -106,3 +107,7 @@ class StatsObject:
         itemcards = so1.itemcards + so2.itemcards
 
         return StatsObject(health, mana, damage, resist, accuracy, critical, block, pierce, outgoing, pipConserve, powerPipChance, shadowRating, archmastery, startingPips, itemcards)
+
+
+def getBaseStats(school: School, level: int) -> StatsObject:
+    return StatsObject()

@@ -76,20 +76,30 @@ class Equipment:
 
         # TODO: Add check for number of jewel types
         self.jewels = jewels
-        jewel_stats = None
+        jewel_stats = StatsObject()
         for jewel in jewels:
-            StatsObject.sum(jewel_stats, jewel.stats)
+            jewel_stats = StatsObject.sum(jewel_stats, jewel.stats)
 
-        self.stats = StatsObject.sum(
-            StatsObject.sum(
-                StatsObject.sum(
-                    StatsObject.sum(self.hat.stats, self.robe.stats), 
-                    StatsObject.sum(self.boots.stats, self.wand.stats)
-                ),
-                StatsObject.sum(
-                    StatsObject.sum(self.athame.stats, self.amulet.stats),
-                    StatsObject.sum(self.ring.stats, self.deck.stats)
-                )
-            ),
-            StatsObject.sum(self.mount.stats,jewel_stats)
-        )
+        pet_stats = StatsObject()
+        for talent in self.pet.talents:
+            pet_stats = StatsObject.sum(talent.stats, pet_stats)
+
+        sumStats = StatsObject()
+
+        if self.hat != None:
+            sumStats = StatsObject.sum(self.hat.stats, sumStats)
+        if self.robe != None:
+            sumStats = StatsObject.sum(self.robe.stats, sumStats)
+        if self.boots != None:
+            sumStats = StatsObject.sum(self.boots.stats, sumStats)
+        if self.wand != None:
+            sumStats = StatsObject.sum(self.wand.stats, sumStats)
+        if self.athame != None:
+            sumStats = StatsObject.sum(self.athame.stats, sumStats)
+        if self.amulet != None:
+            sumStats = StatsObject.sum(self.amulet.stats, sumStats)
+        if self.ring != None:
+            sumStats = StatsObject.sum(self.ring.stats, sumStats)
+        if self.deck != None:
+            sumStats = StatsObject.sum(self.deck.stats, sumStats)
+
