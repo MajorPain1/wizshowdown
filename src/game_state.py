@@ -15,6 +15,9 @@ class GameState:
         self.player1.opponent = self.player2
         self.player2.opponent = self.player1
 
+        self.player1.addRoundPip()
+        self.player2.addRoundPip()
+
         self.bubbleObjectName = None
         self.bubbleEffects = []
 

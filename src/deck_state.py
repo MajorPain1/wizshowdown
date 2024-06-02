@@ -19,7 +19,8 @@ class DeckState:
         shuffle(self.treasureCards)
 
         for _ in range(7):
-            self.hand.append(self.mainDeck.pop())
+            if len(self.mainDeck) > 0:
+                self.hand.append(self.mainDeck.pop())
 
     def drawTC(self):
         if len(self.hand) >= 7 or len(self.treasureCards) == 0:

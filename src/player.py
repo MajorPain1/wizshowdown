@@ -6,7 +6,6 @@ from src.deck_state import DeckState
 from src.gear import Equipment
 from src.enums import School
 from src.stats import StatsObject, getBaseStats
-from src.hangingeffect import Charm, Ward, Overtime
 from src.pips import Pip, PipArray
 
 class PlayerDeck:
@@ -49,11 +48,11 @@ class Player:
         self.stats = StatsObject.sum(getBaseStats(level=level, school=school), equipment.stats)
 
         self.current_hp = self.stats.health
+
         self.power_pips = self.stats.startingPips.powerPips
         self.white_pips = self.stats.startingPips.whitePips
-        self.pips: PipArray
-
-        self.addRoundPip()
+        self.pips = PipArray()
+        self.pips.addPips((self.power_pips*2 + self.white_pips))
 
 
         self.deck.addCards(self.stats.itemcards)
@@ -69,10 +68,19 @@ class Player:
         
 
     def addRoundPip(self):
-        self.pips.archmastery += self.stats.archmastery / self.opponent.stats.archmastery
+        if self.opponent.stats.archmastery > 0:
+            self.pips.archmastery += self.stats.archmastery / self.opponent.stats.archmastery
+        else:
+            self.pips.archmastery = 1.0
         
         # Shadow Pips
         if len(self.pips.shadow_pips) < 2:
+
+            if self.stats.shadowRating == 0:
+                self.stats.shadowRating = 90
+            if self.opponent.stats.shadowRating == 0:
+                self.opponent.stats.shadowRating = 90
+
             self.pips.shadow_guage += uniform(self.stats.shadowRating*0.75, self.stats.shadowRating) / (self.opponent.stats.shadowRating*5)
             if self.pips.shadow_guage >= 1.0:
                 self.pips.shadow_pips.append(Pip(isPower=True, school=School.Shadow))

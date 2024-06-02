@@ -108,6 +108,6 @@ class StatsObject:
 
         return StatsObject(health, mana, damage, resist, accuracy, critical, block, pierce, outgoing, pipConserve, powerPipChance, shadowRating, archmastery, startingPips, itemcards)
 
-
+# TODO
 def getBaseStats(school: School, level: int) -> StatsObject:
     return StatsObject()

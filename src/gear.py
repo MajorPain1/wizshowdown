@@ -103,3 +103,4 @@ class Equipment:
         if self.deck != None:
             sumStats = StatsObject.sum(self.deck.stats, sumStats)
 
+        self.stats = sumStats

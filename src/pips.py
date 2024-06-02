@@ -4,13 +4,14 @@ from random import randint
 from src.enums import School
 
 schoolPipOrdering = {
-    School.Balance: 0,
-    School.Death: 1,
-    School.Fire: 2,
-    School.Ice: 3,
-    School.Life: 4,
-    School.Myth: 5,
-    School.Storm: 6,
+    School.Universal: 0,
+    School.Balance: 1,
+    School.Death: 2,
+    School.Fire: 3,
+    School.Ice: 4,
+    School.Life: 5,
+    School.Myth: 6,
+    School.Storm: 7,
 }
 
 class Pip:
@@ -22,7 +23,7 @@ class Pip:
         return self.isPower == other.isPower and self.school == other.school
 
 class PipArray:
-    def __init__(self, pips: List[Pip], shadow_pips: List[Pip]):
+    def __init__(self, pips: List[Pip] = [], shadow_pips: List[Pip] = []):
         self.pips = pips
         self.shadow_pips = shadow_pips
         self.archmastery = 0

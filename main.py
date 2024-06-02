@@ -4,7 +4,8 @@ from pygame.locals import *
 import sys
 
 from src.game_state import GameState
-
+from tests.test import test
+"""
 pygame.init()
 
 FPS = 60
@@ -37,12 +38,12 @@ class CardWindow(pygame.sprite.Sprite):
 
     def setImage(self, image: str):
         self.image = pygame.image.load(image)
-
+"""
 def main():
 
+    test()
 
-
-
+    """
     run = True
     while run:
         center = (win.get_width() // 2, win.get_height() // 2)
@@ -67,7 +68,7 @@ def main():
 
         pygame.display.update()
         FramePerSec.tick(FPS)
-            
+    """
 
 
             
