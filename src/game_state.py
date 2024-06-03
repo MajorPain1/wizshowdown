@@ -529,7 +529,8 @@ class GameState:
                     param=effect.param, 
                     school=effect.school, 
                     spellEffect=effect.spelleffect, 
-                    disposition=effect.disposition
+                    disposition=effect.disposition,
+                    rounds=effect.rounds
                     )
             case SpellEffects.summon_creature:
                 pass # TODO: Minions
@@ -637,6 +638,16 @@ class GameState:
             case ExecutionOutcomes.Success:
                 player.deckstate.hand.remove(used_card)
                 player.deckstate.usedCards.append(used_card)
+
+        # Tick auras
+        for aura in player.auraEffects:
+            aura: Aura
+            aura.rounds -= 1
+            if aura.rounds == 0:
+                player.auraEffects.remove(aura)
+                
+        if len(player.auraEffects) == 0:
+            player.auraObjectName = ""
         
         # Evaluate Win
         if player.opponent.current_hp <= 0:

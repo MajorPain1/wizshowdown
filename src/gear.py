@@ -4,8 +4,6 @@ from src.enums import EquipmentType, JewelType
 from src.stats import StatsObject
 
 
-
-
 class Jewel:
     def __init__(
             self,
@@ -76,15 +74,18 @@ class Equipment:
 
         # TODO: Add check for number of jewel types
         self.jewels = jewels
-        jewel_stats = StatsObject()
-        for jewel in jewels:
-            jewel_stats = StatsObject.sum(jewel_stats, jewel.stats)
 
-        pet_stats = StatsObject()
-        for talent in self.pet.talents:
-            pet_stats = StatsObject.sum(talent.stats, pet_stats)
+        self.stats = StatsObject()
+        self.updateStats()
 
+    def updateStats(self):
         sumStats = StatsObject()
+
+        for jewel in self.jewels:
+            sumStats = StatsObject.sum(sumStats, jewel.stats)
+        
+        for talent in self.pet.talents:
+            sumStats = StatsObject.sum(talent.stats, sumStats)
 
         if self.hat != None:
             sumStats = StatsObject.sum(self.hat.stats, sumStats)
@@ -102,5 +103,34 @@ class Equipment:
             sumStats = StatsObject.sum(self.ring.stats, sumStats)
         if self.deck != None:
             sumStats = StatsObject.sum(self.deck.stats, sumStats)
-
+        if self.mount != None:
+            sumStats = StatsObject.sum(self.mount.stats, sumStats)
+        
         self.stats = sumStats
+
+    def equipItem(self, gear: Gear):
+        match gear.equipmentType:
+            case EquipmentType.Hat:
+                self.hat = gear
+            case EquipmentType.Robe:
+                self.robe = gear
+            case EquipmentType.Boots:
+                self.boots = gear
+            case EquipmentType.Wand:
+                self.wand = gear
+            case EquipmentType.Athame:
+                self.athame = gear
+            case EquipmentType.Amulet:
+                self.amulet = gear
+            case EquipmentType.Ring:
+                self.ring = gear
+            case EquipmentType.Deck:
+                self.deck = gear
+            case EquipmentType.Mount:
+                self.mount = gear
+
+        self.updateStats()
+
+    def equipItem(self, gears: List[Gear]):
+        for gear in gears:
+            self.equipItem(gear)

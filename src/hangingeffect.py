@@ -25,7 +25,7 @@ class DispositionEffect:
 
 
 class Charm(DispositionEffect):
-    def __init__(self, objectName: str, owner: Player, param: int, school: School, spellEffect: SpellEffects, disposition: Disposition):
+    def __init__(self, objectName: str, owner: Player, param: int, school: School, rounds: int, spellEffect: SpellEffects, disposition: Disposition):
         super().__init__(owner, disposition)
         self.objectName = objectName
         self.spellEffect = spellEffect
@@ -37,7 +37,7 @@ class Charm(DispositionEffect):
         return f"{self.param} {self.school} {self.spellEffect} [{self.objectName} {self.disposition}]"
 
 class Ward(DispositionEffect):
-    def __init__(self, objectName: str, owner: Player, param: int, school: School, spellEffect: SpellEffects, disposition: Disposition):
+    def __init__(self, objectName: str, owner: Player, param: int, school: School, rounds: int, spellEffect: SpellEffects, disposition: Disposition):
         super().__init__(owner, disposition)
         self.objectName = objectName
         self.spellEffect = spellEffect
@@ -66,7 +66,7 @@ class Overtime(DispositionEffect):
         return f"{self.param} {self.school} {self.spellEffect}, Rounds: {self.rounds} [{self.disposition}]"    
 
 class Bubble:
-    def __init__(self, objectName: str, owner: Player, param: int, school: School, spellEffect: SpellEffects, disposition: Disposition):
+    def __init__(self, objectName: str, owner: Player, param: int, school: School, rounds: int, spellEffect: SpellEffects, disposition: Disposition):
         self.objectName = objectName
         self.owner = owner
         self.spellEffect = spellEffect
@@ -78,12 +78,13 @@ class Bubble:
         return f"{self.param} {self.school} {self.spellEffect} [{self.objectName} {self.disposition}]"    
 
 class Aura:
-    def __init__(self, objectName: str, owner: Player, param: int, school: School, spellEffect: SpellEffects, disposition: Disposition):
+    def __init__(self, objectName: str, owner: Player, param: int, school: School, rounds: int, spellEffect: SpellEffects, disposition: Disposition):
         self.objectName = objectName
         self.owner = owner
         self.spellEffect = spellEffect
         self.param = param
         self.school = school
+        self.rounds = rounds
         self.disposition = disposition
 
     def __repr__(self) -> str:

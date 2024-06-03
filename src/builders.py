@@ -22,7 +22,7 @@ class DeckBuilder:
         self.treasureCards = sorted(self.treasureCards, key=attrgetter('school', 'rank', 'name'))
 
     def addCardToDeck(self, card: Card):
-        if card.isTreasure:
+        if not card.isTreasure:
             deck = self.mainDeck
             if len(deck) >= 64:
                 return
@@ -56,4 +56,3 @@ class DeckBuilder:
                 copies += 1
         
         return 
-    
