@@ -78,3 +78,8 @@ class DeckState:
     def setAllHandToDiscardable(self):
         for card in self.hand:
             card.discardable = True
+
+    def getCardInHand(self, objectName: str):
+        for card in self.hand:
+            if card.objectName == objectName:
+                return card

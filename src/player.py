@@ -68,10 +68,12 @@ class Player:
         
 
     def addRoundPip(self):
+        # Archmastery
+        deckEff = len(self.deck.mainDeck) / 64
         if self.opponent.stats.archmastery > 0:
-            self.pips.archmastery += self.stats.archmastery / self.opponent.stats.archmastery
+            self.pips.archmastery += (self.stats.archmastery / self.opponent.stats.archmastery) * deckEff
         else:
-            self.pips.archmastery = 1.0
+            self.pips.archmastery = 1.0 * deckEff
         
         # Shadow Pips
         if len(self.pips.shadow_pips) < 2:

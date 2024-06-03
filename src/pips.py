@@ -21,6 +21,12 @@ class Pip:
 
     def __eq__(self, other):
         return self.isPower == other.isPower and self.school == other.school
+    
+    def __repr__(self):
+        if self.isPower:
+            return f"Power Pip [{self.school}]"
+        else:
+            return f"White Pip"
 
 class PipArray:
     def __init__(self, pips: List[Pip] = [], shadow_pips: List[Pip] = []):
@@ -177,6 +183,6 @@ class PipArray:
 
         self.orderPips()
 
-    def calculatePipConserveChance(self, pserve: int): # TODO: do this one too noodle
-        return
+    def calculatePipConserveChance(self, pserve: int) -> int: # TODO: do this one too noodle
+        return 100
 

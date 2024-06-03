@@ -62,5 +62,7 @@ class Card:
         if rank >= -1 and rank <= 14:
             self.rank = rank
 
+    def __repr__(self) -> str:
+        return f"{self.name} [{self.objectName}]"
 
         

@@ -1,5 +1,6 @@
 from random import choice, randint, random
 from typing import Callable, List
+from math import floor
 
 from src.player import Player
 from src.card import Card, Effect
@@ -37,7 +38,7 @@ class GameState:
         school = player.school
 
         # Calculate Auras on Player
-        for aura in player.aura:
+        for aura in player.auraEffects:
             aura: Aura
             if aura.school == School.Universal or aura.school == school:
                 match aura.spellEffect:
@@ -77,7 +78,7 @@ class GameState:
         player.charms.reverse()
 
         # Calculate Bubble
-        for bubble in self.bubble:
+        for bubble in self.bubbleEffects:
             bubble: Bubble
             if bubble.school == School.Universal or bubble.school == school:
                 match bubble.spellEffect:
@@ -112,8 +113,8 @@ class GameState:
             player.wards.remove(ward)
         player.wards.reverse()
 
-        crit_chance = self.calculateCritChance(player.level, player.critical, player.block)
-        crit_multiplier = self.calculateCritMultiplier(player.critical, player.block)
+        crit_chance = self.calculateCritChance(player.level, player.stats.critical, player.stats.block)
+        crit_multiplier = self.calculateCritMultiplier(player.stats.critical, player.stats.block)
         critroll = random()
 
         if crit_chance > critroll:
@@ -160,7 +161,7 @@ class GameState:
         total = param
 
         damage = player.stats.damage.dict[cardSchool]
-        critical = player.stats.critical.dict[cardSchool],
+        critical = player.stats.critical.dict[cardSchool]
         pierce = player.stats.pierce.dict[cardSchool]
 
         resist = player.opponent.stats.resist.dict[cardSchool]
@@ -169,7 +170,7 @@ class GameState:
         total *= 1 + (damage/100)
 
         # Calculate Auras on Player
-        for aura in player.aura:
+        for aura in player.auraEffects:
             aura: Aura
             if aura.school == School.Universal or aura.school == school:
                 match aura.spellEffect:
@@ -184,7 +185,7 @@ class GameState:
 
         
         # Calculate Bubble
-        for bubble in self.bubble:
+        for bubble in self.bubbleEffects:
             bubble: Bubble
             if bubble.school == School.Universal or bubble.school == school:
                 match bubble.spellEffect:
@@ -293,9 +294,22 @@ class GameState:
             total *= 1 - resist/100
             
         if not no_crit:
-            crit_chance = self.calculateCritChance(player, critical, block)
-            block_chance = self.calculateBlockChance(player, critical, block)
-            crit_multiplier = self.calculateCritMultiplier(player, critical, block)
+            if critical == 0:
+                crit_chance = 0.0
+            else:
+                crit_chance = self.calculateCritChance(player.level, critical, block)
+
+            if block == 0 or critical == 0:
+                block_chance = 0.0
+            else:
+                block_chance = self.calculateBlockChance(player.level, critical, block)
+
+            if block == 0 and critical == 0:
+                crit_multiplier = 1.0
+            elif block == 0 and critical > 0:
+                crit_multiplier = 2.0
+            else:
+                crit_multiplier = self.calculateCritMultiplier(player.level, critical, block)
 
             if crit_chance - block_chance < randint(0,100)/100:
                 total *= crit_multiplier
@@ -303,7 +317,7 @@ class GameState:
         #if player.school == School.Myth:   Darn Moose Yaga!
         #    total = total * 5
 
-        return total
+        return floor(total)
 
 
 
@@ -589,6 +603,8 @@ class GameState:
             charm: Charm
             if charm.used:
                 player.charms.remove(charm)
+
+        player.pips.subtractPips(num=card.rank, extraPipReq=card.extraPipReq, cardSchool=card.school, mastery=player.school, pserve=player.stats.pipConserve)
 
         return ExecutionOutcomes.Success
 
