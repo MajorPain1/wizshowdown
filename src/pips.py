@@ -35,6 +35,30 @@ class PipArray:
         self.archmastery = 0
         self.shadow_guage = 0
 
+    def getPowerPip(self):
+        for pip in self.pips:
+            if pip.isPower:
+                return pip
+        return None
+    
+    def getSpecificSchoolPip(self, school: School):
+        for pip in self.pips:
+            if pip.school == school:
+                return pip
+        return None
+    
+    def getAnySchoolPip(self):
+        for pip in self.pips:
+            if pip.school != School.Universal:
+                return pip
+        return None
+            
+    def getWhitePip(self):
+        for pip in self.pips:
+            if not pip.isPower:
+                return pip
+        return None
+
     def orderPips(self):
         whitePips: List[Pip] = []
         # White pips in front
@@ -131,54 +155,57 @@ class PipArray:
                     self.shadow_pips.pop()
                 case _:
                     self.pips.remove(pip)
-                    num -= 2
+                    extraPipReq.remove(pip)
 
         if cardSchool == mastery:
-            # Evaluate all Power Pips first
-            for pip in self.pips:
-                if pip.isPower:
-                    num -= 2
-                    self.pips.remove(pip)
+            # Evaluate White Pips if odd
+            if num % 2 == 1 and not self.getWhitePip() is None:
+                num -= 1
+                self.pips.remove(self.getWhitePip())
+
+            # Evaluate all Power Pips
+            while not self.getPowerPip() is None and num > 0:
+                num -= 2
+                self.pips.remove(self.getPowerPip())
             
             # On-school pips
-            for pip in self.pips:
-                if pip.school == cardSchool:
-                    num -= 2
-                    self.pips.remove(pip)
+            while not self.getSpecificSchoolPip(cardSchool) is None and num > 0:
+                num -= 2
+                self.pips.remove(self.getSpecificSchoolPip(cardSchool))
 
             # Off-school pips
-            for pip in self.pips:
-                if pip.school != School.Universal and pip.school != cardSchool:
-                    num -= 2
-                    self.pips.remove(pip)
+            while not self.getAnySchoolPip() is None and num > 0:
+                num -= 2
+                self.pips.remove(self.getAnySchoolPip())
 
             # White pips
-            for pip in self.pips:
-                if not pip.isPower:
-                    num -= 1
-                    self.pips.remove(pip)
+            while not self.getWhitePip() is None and num > 0:
+                num -= 1
+                self.pips.remove(self.getWhitePip())
 
         else:
+            # Evaluate White Pips if odd
+            if num % 2 == 1 and not self.getWhitePip() is None:
+                num -= 1
+                self.pips.remove(self.getWhitePip())
+
             # Evaluate school pip of card school
-            for pip in self.pips:
-                if pip.school == cardSchool:
-                    num -= 2
-                    self.pips.remove(pip)
+            while not self.getSpecificSchoolPip(cardSchool) is None and num > 0:
+                num -= 2
+                self.pips.remove(self.getSpecificSchoolPip(cardSchool))
 
             # White Pips
-            for pip in self.pips:
-                if not pip.isPower:
-                    num -= 1
-                    self.pips.remove(pip)
+            while not self.getWhitePip() is None and num > 0:
+                num -= 1
+                self.pips.remove(self.getWhitePip())
 
             # Power Pips
-            for pip in self.pips:
-                if pip.isPower:
-                    num -= 1
-                    self.pips.remove(pip)
+            while not self.getPowerPip() is None and num > 0:
+                num -= 1
+                self.pips.remove(self.getPowerPip())
 
         if num == -1:
-            if randint(0, 100) < self.calculatePipConserveChance(pserve):
+            if randint(0, 99) < self.calculatePipConserveChance(pserve):
                 self.pips.append(Pip(isPower=False, school=School.Universal))
 
         self.orderPips()

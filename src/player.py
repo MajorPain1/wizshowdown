@@ -88,7 +88,7 @@ class Player:
                 self.pips.shadow_pips.append(Pip(isPower=True, school=School.Shadow))
 
         # Reg Pips
-        if randint(0, 100) < self.stats.powerPipChance:
+        if randint(0, 99) < self.stats.powerPipChance:
             if self.pips.archmastery >= 1.0:
                 self.pips.pips.append(Pip(isPower=True, school=self.selectedArch))
                 self.pips.archmastery = 0.0
