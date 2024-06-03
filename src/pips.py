@@ -70,10 +70,12 @@ class PipArray:
         schoolPips = sorted(self.pips, key=lambda pip:schoolPipOrdering[pip.school])
         self.pips = whitePips + schoolPips
 
-    def sumTotalValue(self) -> int:
+    def sumTotalValue(self, school: School, mastery: bool) -> int:
         total = 0
         for pip in self.pips:
-            if pip.isPower:
+            if pip.isPower and mastery:
+                total += 2
+            elif pip.school == school:
                 total += 2
             else:
                 total += 1
@@ -142,9 +144,9 @@ class PipArray:
             self.shadow_pips.append(Pip(isPower=True, school=School.Shadow))
 
     def subtractPips(self, num: int, extraPipReq: List[Pip], cardSchool: School, mastery: School, pserve: int) -> bool:
-        if self.sumTotalValue() < num:
+        if self.sumTotalValue(cardSchool, cardSchool == mastery) < num:
             return False
-        
+
         for pip in extraPipReq:
             if not pip in self.pips:
                 return False

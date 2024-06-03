@@ -38,9 +38,9 @@ class Card:
             isTreasure: bool,
             noReshuffle: bool,
             discardable: bool,
-            usable: bool,
             trainable: bool,
             copyLimit: int,
+            levelReq: int,
             ):
         
         self.name = name
@@ -52,9 +52,9 @@ class Card:
         self.isTreasure = isTreasure
         self.noReshuffle = noReshuffle
         self.discardable = discardable
-        self.usable = usable
         self.trainable = trainable
         self.copyLimit = copyLimit
+        self.levelReq = levelReq
 
         if accuracy <= 1 and accuracy >= 0:
             self.accuracy = accuracy
