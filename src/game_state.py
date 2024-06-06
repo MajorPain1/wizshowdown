@@ -585,8 +585,8 @@ class GameState:
                     self.bubbleEffects.append(hangingEffect)
 
         for subeffect in effect.subeffects:
-            if subeffect[0](player, subeffect[1], subeffect[2]):
-                self.recursiveExecuteEffects(player, subeffect[3])
+            if not subeffect.condition is None and subeffect.condition(player, subeffect.school, subeffect.disposition):
+                self.recursiveExecuteEffects(player, card, subeffect)
 
     def executeTurn(self, player: Player, card: Card) -> ExecutionOutcomes:
         if card == None:
@@ -598,7 +598,8 @@ class GameState:
             return ExecutionOutcomes.Fizzle
 
         for effect in card.effects:
-            self.recursiveExecuteEffects(player, card, effect)
+            if not effect.condition is None and effect.condition(player, effect.school, effect.disposition):
+                self.recursiveExecuteEffects(player, card, effect)
 
         for charm in player.charms:
             charm: Charm

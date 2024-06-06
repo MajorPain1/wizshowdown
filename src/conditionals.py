@@ -4,9 +4,16 @@ from src.enums import School, Disposition
 from src.hangingeffect import Ward, Charm, Overtime
 from src.player import Player
 
+# Handled elsewhere
+def random(player: Player, num: int, disposition: Disposition):
+    return
+
+def xpip(player: Player, num: int, disposition: Disposition):
+    return
+
 # Player reqs
-def playerIsSchool(player: Player, school: School, disposition: Disposition):
-    return player.school == school
+def playerIsSchool(player: Player, num: int, disposition: Disposition):
+    return player.school == School(num)
 
 def playerHasWards(player: Player, num: int, disposition: Disposition):
     num_wards = 0
@@ -84,8 +91,6 @@ def opponentHasPips(player: Player, num: int, disposition: Disposition):
 
 def opponentHasShadowPips(player: Player, num: int, disposition: Disposition):
     return len(player.opponent.pips.shadow_pips) >= num
-
-# TODO: Has Minion
 
 def opponentHasHealth(player: Player, range: range, disposition: Disposition):
     hp_percent = ((player.opponent.current_hp*100) / player.opponent.stats.health)

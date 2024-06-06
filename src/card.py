@@ -13,8 +13,12 @@ class Effect:
             spelleffect: SpellEffects,
             target: EffectTarget,
             disposition: Disposition,
-            subeffects: List[Tuple[Callable, Any, int, 'Effect']] # req function, conditional value, disposition, output effect
+            condition: Callable,
+            conditionValue: Any,
+            subeffects: List['Effect']
         ):
+        self.condition = condition
+        self.conditionValue = conditionValue
         self.param = param
         self.school = school
         self.rounds = rounds
