@@ -1,1 +1,70 @@
-{"name": "Ghoul", "objectName": "Ghoul - B", "school": 78318724, "accuracy": 85, "rank": 2, "cardType": "Drain", "istc": "False", "discardable": "True", "trainable": "True", "copyLimit": 6, "levelreq": 25}
+{
+    "accuracy": 85,
+    "cardType": "Drain",
+    "copyLimit": 6,
+    "discardable": "True",
+    "istc": "False",
+    "levelreq": 25,
+    "name": "Ghoul",
+    "objectName": "Ghoul - B",
+    "rank": 2,
+    "school": 78318724,
+    "trainable": "True",
+    "extraPipReq": {
+        "fire": 0,
+        "ice": 0,
+        "storm": 0,
+        "myth": 0,
+        "life": 0,
+        "death": 0,
+        "balance": 0,
+        "shadow": 0
+    },
+    "effects": [
+        {
+            "effectparam": 175,
+            "effectschool": 78318724,
+            "effectrounds": 0,
+            "spelleffect": "steal_health",
+            "effecttarget": "enemy_single",
+            "effectdisposition": "both",
+            "effectcondition": "",
+            "effectcv": "",
+            "subeffects": []
+        },
+        {
+            "effectparam": 0,
+            "effectschool": 0,
+            "effectrounds": 0,
+            "spelleffect": "invalid_spell_effect",
+            "effecttarget": "invalid_target",
+            "effectdisposition": "beneficial",
+            "effectcondition": "playerHasWards",
+            "effectcv": "1",
+            "subeffects": [
+                {
+                    "effectparam": 1,
+                    "effectschool": 0,
+                    "effectrounds": 0,
+                    "spelleffect": "remove_ward",
+                    "effecttarget": "self",
+                    "effectdisposition": "beneficial",
+                    "effectcondition": "playerHasWards",
+                    "effectcv": "1",
+                    "subeffects": []
+                },
+                {
+                    "effectparam": 55,
+                    "effectschool": 78318724,
+                    "effectrounds": 0,
+                    "spelleffect": "motify_outgoing_damage",
+                    "effecttarget": "self",
+                    "effectdisposition": "beneficial",
+                    "effectcondition": "playerHasWards",
+                    "effectcv": "1",
+                    "subeffects": []
+                }
+            ]
+        }
+    ]
+}

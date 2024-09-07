@@ -2,14 +2,16 @@ from enum import Enum
 
 class School(Enum):
     Universal = 0
-    Fire = 2343174
-    Ice = 72777
-    Storm = 83375795
-    Myth = 2448141
-    Life = 2330892
-    Death = 78318724
-    Balance = 1027491821
-    Shadow = 1429009101
+    Fire = 1
+    Ice = 2
+    Storm = 3
+    Myth = 4
+    Life = 5
+    Death = 6
+    Balance = 7
+    Shadow = 8
+    ChromaticSelf = 9
+    ChromaticTarget = 10
 
 class CardType(Enum):
     Damage = 0
@@ -143,6 +145,7 @@ class SpellEffects(Enum):
     add_combat_trigger_list = 85
     remove_combat_trigger_list = 86
     backlash_damage = 87
+    ## Need to do all this like bruh is shrike worth it
     modify_backlash = 88
     intercept = 89
     shadow_self = 90
@@ -150,6 +153,7 @@ class SpellEffects(Enum):
     modify_shadow_creature_level = 92
     select_shadow_creature_attack_target = 93
     shadow_decrement_turn = 94
+    ##
     crit_boost_school_specific = 95
     spawn_creature = 96
     unpolymorph = 97
@@ -219,6 +223,14 @@ class EffectTarget(Enum):
     multi_target_enemy = 14
     multi_target_friendly = 15
     friendly_single_not_me = 16
+    
+
+class CardTarget(Enum):
+    no_target = 0
+    single = 1
+    team = 2
+    multi_target = 3
+
 
 class Disposition(Enum):
     both = 0

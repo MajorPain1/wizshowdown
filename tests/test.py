@@ -1,14 +1,14 @@
 from src.game_state import GameState
-from src.player import Player, PlayerDeck
+from src.player import Player, PlayerDeck, Team
 from src.gear import Equipment, Gear, Pet
-from src.enums import EquipmentType, School, SpellEffects, EffectTarget, Disposition
-from src.stats import StatsObject, SchoolStat
-from src.card import Card, Effect, CardType
+from src.enums import EquipmentType, School, SpellEffects, EffectTarget, Disposition, CardTarget
+from src.stats import StatsObject, SchoolStat, StartingPips
+from src.card import Card, Effect, CardType, CardToExecute
 
-emptyHat = Gear("EmptyHat", EquipmentType.Hat, StatsObject(damage=SchoolStat(storm=100), powerPipChance=70), [])
+emptyHat = Gear("EmptyHat", EquipmentType.Hat, StatsObject(damage=SchoolStat(storm=100), powerPipChance=100), [])
 emptyRobe = Gear("EmptyRobe", EquipmentType.Robe, StatsObject(), [])
 emptyBoots = Gear("EmptyBoots", EquipmentType.Boots, StatsObject(), [])
-emptyWand = Gear("EmptyWand", EquipmentType.Wand, StatsObject(), [])
+emptyWand = Gear("EmptyWand", EquipmentType.Wand, StatsObject(startingPips=StartingPips(1, 1)), [])
 emptyAthame = Gear("EmptyAthame", EquipmentType.Athame, StatsObject(), [])
 emptyAmulet = Gear("EmptyAmulet", EquipmentType.Amulet, StatsObject(), [])
 emptyRing = Gear("EmptyRing", EquipmentType.Ring, StatsObject(), [])
@@ -39,10 +39,10 @@ stormblade = Card(
     extraPipReq=[], 
     cardType=CardType.Charm, 
     effects=[Effect(35, School.Storm, 0, SpellEffects.modify_outgoing_damage, EffectTarget.friendly_single, Disposition.beneficial, [])],
+    target=CardTarget.single,
     isTreasure=False,
     noReshuffle=False,
     discardable=True,
-    usable=True,
     trainable=False,
     copyLimit=-1
 )
@@ -56,10 +56,10 @@ thundersnake = Card(
     extraPipReq=[], 
     cardType=CardType.Damage, 
     effects=[Effect(125, School.Storm, 0, SpellEffects.damage, EffectTarget.enemy_single, Disposition.beneficial, [])],
+    target=CardTarget.single,
     isTreasure=False,
     noReshuffle=False,
     discardable=True,
-    usable=True,
     trainable=False,
     copyLimit=-1
 )
@@ -73,10 +73,10 @@ lifeblade = Card(
     extraPipReq=[], 
     cardType=CardType.Charm, 
     effects=[Effect(35, School.Life, 0, SpellEffects.modify_outgoing_damage, EffectTarget.friendly_single, Disposition.beneficial, [])],
+    target=CardTarget.single,
     isTreasure=False,
     noReshuffle=False,
     discardable=True,
-    usable=True,
     trainable=False,
     copyLimit=-1
 )
@@ -87,30 +87,57 @@ deck2 = PlayerDeck([lifeblade], [])
 p1 = Player("Jamal VineRider", equipment, deck1, School.Storm, 170, School.Storm)
 p2 = Player("Chris Story", equipment, deck2, School.Life, 170, School.Life)
 
-gamestate = GameState(p1, p2)
+t1 = Team()
+t1.addTeamMember(p1)
+t2 = Team()
+t2.addTeamMember(p2)
+
+gamestate = GameState(t1, t2)
 
 def test():
-    print("P1 has 100 Storm Damage Hat equipped")
-    print("Turn 1")
-    print(f"P1 Hand: {gamestate.player1.deckstate.hand}")
-    print(f"P1 Pips: {gamestate.player1.pips.pips}")
-    print(f"P2 HP: {gamestate.player2.current_hp}")
-    blade = gamestate.player1.deckstate.getCardInHand("Stormblade")
-    print("Using card Stormblade")
-    gamestate.turn(p1, blade)
-    print("\n")
-    print("Turn 2 (skipped p2's turn)")
-    print(f"P1 Hand: {gamestate.player1.deckstate.hand}")
-    print(f"P1 Charms: {gamestate.player1.charms}")
-    print(f"P1 Pips: {gamestate.player1.pips.pips}")
-    snake = gamestate.player1.deckstate.getCardInHand("Thundersnake")
-    print("Using Card Thundersnake (125 Storm Damage)")
-    gamestate.turn(p1, snake)
-    print("\n")
-    print("Turn 3")
-    print(f"P1 Hand: {gamestate.player1.deckstate.hand}")
-    print(f"P1 Charms: {gamestate.player1.charms}")
-    print(f"P1 Pips: {gamestate.player1.pips.pips}")
-    print(f"P2 HP: {gamestate.player2.current_hp}")
-    print("\n")
-    print("500 - 125 * 1.35 * 2.0 = 162.5")
+    teams_up = t1
+    while True:
+        print(gamestate)
+        # Team 1's turn
+        cards_to_execute = []
+        for slot in teams_up.slots:
+            if slot == None:
+                continue
+            
+            print(f"{slot.name}'s turn")
+            print(f"{slot.deckstate.hand}")
+            card_i = int(input("Give index of card to use: "))
+            card = slot.deckstate.hand[card_i]
+            targets = []
+            match card.target:
+                case CardTarget.no_target:
+                    pass
+                
+                case CardTarget.single:
+                    targets.append(int(input("What index targets? ")))
+                    
+                case CardTarget.team:
+                    for i in range(4):
+                        targets.append(i)
+                        
+                case CardTarget.team:
+                    for i in range(4):
+                        targets.append(i)
+                        
+                case CardTarget.multi_target:
+                    inp = input("What index targets? (q to exit): ")
+                    while inp != "q":
+                        targets.append(int(inp))
+                        inp = input("What index targets? (q to exit): ")
+
+            targets = list(set(targets))
+            cards_to_execute.append(CardToExecute(slot, card, targets))
+        
+        for cardtoexecute in cards_to_execute:
+            cardtoexecute: CardToExecute
+            gamestate.turn(cardtoexecute.player, cardtoexecute.card, cardtoexecute.targets)
+        
+        teams_up = teams_up.opponentTeam
+        
+if __name__ == "__main__":
+    test()

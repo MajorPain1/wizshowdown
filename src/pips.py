@@ -14,6 +14,9 @@ schoolPipOrdering = {
     School.Storm: 7,
 }
 
+def calculatePipConserveChance(pserve: int) -> int: # TODO: do this one too noodle
+    return 100
+
 class Pip:
     def __init__(self, isPower: bool, school: School):
         self.isPower = isPower
@@ -24,7 +27,7 @@ class Pip:
     
     def __repr__(self):
         if self.isPower:
-            return f"Power Pip [{self.school}]"
+            return f"Power Pip" #[{self.school}]
         else:
             return f"White Pip"
 
@@ -34,7 +37,22 @@ class PipArray:
         self.shadow_pips = shadow_pips
         self.archmastery = 0
         self.shadow_guage = 0
+        
+    def __repr__(self) -> str:
+        res = ""
+        for pip in self.pips:
+            res += str(pip) + " "
+        return res
 
+    def getRawPipValue(self) -> int:
+        res = 0
+        for pip in self.pips:
+            if pip.isPower:
+                res += 2
+            else:
+                res += 1
+        return res
+    
     def getPowerPip(self):
         for pip in self.pips:
             if pip.isPower:
@@ -111,22 +129,25 @@ class PipArray:
 
         self.orderPips()
 
-    def addPips(self, num: int):
+    def addPips(self, num: int, pserve: int = -1, school: School = School.Universal, white_only: bool = False):
         while num > 0:
-            if self.sumTotalValue() == 14:
+            self.orderPips()
+            if self.getRawPipValue() == 14:
                 self.orderPips()
                 return
             
             if len(self.pips) < 7:
-                if num > 1:
-                    self.pips.append(Pip(isPower=True, school=School.Universal))
+                if num > 1 and not white_only:
+                    self.pips.append(Pip(isPower=True, school=school))
                     num -= 2
-                if num == 1:
+                if num == 1 or white_only:
                     self.pips.append(Pip(isPower=False, school=School.Universal))
                     num -= 1
-            else:
+            elif pserve == -1 or randint(0, 99) < calculatePipConserveChance(pserve):
                 self.convertWhiteToPower()
                 num -= 1
+                
+        self.orderPips()
 
     def destroyShadowPips(self, num: int):
         while num > 0:
@@ -207,11 +228,8 @@ class PipArray:
                 self.pips.remove(self.getPowerPip())
 
         if num == -1:
-            if randint(0, 99) < self.calculatePipConserveChance(pserve):
+            if randint(0, 99) < calculatePipConserveChance(pserve):
                 self.pips.append(Pip(isPower=False, school=School.Universal))
 
         self.orderPips()
-
-    def calculatePipConserveChance(self, pserve: int) -> int: # TODO: do this one too noodle
-        return 100
 

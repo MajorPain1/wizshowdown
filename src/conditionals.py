@@ -11,6 +11,9 @@ def random(player: Player, num: int, disposition: Disposition):
 def xpip(player: Player, num: int, disposition: Disposition):
     return
 
+def numTargets(player: Player, num: int, disposition: Disposition):
+    return
+
 # Player reqs
 def playerIsSchool(player: Player, num: int, disposition: Disposition):
     return player.school == School(num)
