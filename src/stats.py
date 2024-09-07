@@ -110,4 +110,4 @@ class StatsObject:
 
 # TODO
 def getBaseStats(school: School, level: int) -> StatsObject:
-    return StatsObject(health=500)
+    return StatsObject(health=2000)

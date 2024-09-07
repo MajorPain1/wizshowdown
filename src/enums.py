@@ -23,6 +23,7 @@ class CardType(Enum):
     Aura = 6
     Global = 7
     Enchant = 8
+    Manipulation = 9
 
 class EquipmentType(Enum):
     Hat = 0

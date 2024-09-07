@@ -113,7 +113,7 @@ def calculateDOT(player: Player, ot: Overtime) -> int:
 def calculateHOT(player: Player, ot: Overtime) -> int:
     return
 
-def calculateAccuracy(player: Player, card: Card) -> int:
+def calculateAccuracy(player: Player, card: Card) -> bool:
     baseAccuracyRoll = randint(1,100)
     playerAccuracy = player.stats.accuracy.dict[player.school]
     totalMantle = 0
@@ -138,8 +138,8 @@ def calculateAccuracy(player: Player, card: Card) -> int:
     for mantle in mantles_to_remove:
         player.charms.remove(mantle)
     player.charms.reverse()
-
-    return playerAccuracy + baseAccuracyRoll - totalMantle > (100-card.accuracy)
+    print(f"{playerAccuracy=} {baseAccuracyRoll=} {totalMantle=} {card.accuracy=}")
+    return (playerAccuracy + baseAccuracyRoll - totalMantle) > (100-card.accuracy)
 
 def calculateDamage(player: Player, opponent: Player, param: int, school: School, cardSchool: School, dot: bool = False, no_crit: bool = False) -> int:
     total = param

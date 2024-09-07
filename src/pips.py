@@ -159,7 +159,7 @@ class PipArray:
         
     def addShadowPips(self, num: int):
         while num > 0:
-            if len(self.shadow_pips == 2):
+            if len(self.shadow_pips) == 2:
                 return
             
             self.shadow_pips.append(Pip(isPower=True, school=School.Shadow))

@@ -38,7 +38,7 @@ class Card:
             self, 
             name: str, 
             objectName: str,
-            accuracy: float = 1, 
+            accuracy: int = 100, 
             school: School = School.Fire, 
             rank: int = 0,
             extraPipReq: List[Pip] = [],
@@ -59,6 +59,7 @@ class Card:
         self.extraPipReq = extraPipReq
         self.cardType = cardType
         self.effects = effects
+        self.accuracy = accuracy
         self.isTreasure = isTreasure
         self.noReshuffle = noReshuffle
         self.discardable = discardable

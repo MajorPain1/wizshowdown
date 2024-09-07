@@ -51,7 +51,6 @@ class Player:
         self.power_pips = self.stats.startingPips.powerPips
         self.white_pips = self.stats.startingPips.whitePips
         self.pips = PipArray()
-        print(self.name)
         self.pips.addPips((self.power_pips*2 + self.white_pips), self.stats.pipConserve)
 
 

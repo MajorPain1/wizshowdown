@@ -51,7 +51,6 @@ class GameState:
         return None
 
     def recursiveExecuteEffects(self, player: Player, card: Card, effect: Effect, targets: List[int]):
-        print(f"{player=} {card=} {targets=}")
         for i in targets:
             match effect.target:
                 case EffectTarget.invalid_target | EffectTarget.spell | EffectTarget.specific_spells | EffectTarget.target_global:
@@ -385,7 +384,7 @@ class GameState:
         if player.stunned:
             player.stunned = False
             return ExecutionOutcomes.Stunned
-        if calculateAccuracy(player, card):
+        if not calculateAccuracy(player, card):
             return ExecutionOutcomes.Fizzle
 
         for effect in card.effects:
@@ -425,12 +424,13 @@ class GameState:
         if player.current_hp > 0:
             # Execute Turn
             outcome = self.executeTurn(player, used_card, targets)
+            print(outcome)
             match outcome:
                 case ExecutionOutcomes.Pass | ExecutionOutcomes.Stunned:
                     pass
                 case ExecutionOutcomes.Fizzle:
                     player.deckstate.hand.remove(used_card)
-                    player.deckstate.mainDeck.insert(randint(0, len(player.deckstate.mainDeck)-1), used_card)
+                    player.deckstate.mainDeck.insert(randint(0, len(player.deckstate.mainDeck)), used_card)
                 case ExecutionOutcomes.Success:
                     player.deckstate.hand.remove(used_card)
                     player.deckstate.usedCards.append(used_card)
